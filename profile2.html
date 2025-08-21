@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Delphina Rigel Bedegis — Profile Archive</title>
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    :root{
+      --bg:#080b16; --panel:rgba(18,22,40,.6); --panel2:rgba(12,16,30,.6);
+      --stroke:#2c3560; --stroke2:#3d4f92; --text:#e9ecf7; --muted:#b9c3ea;
+      --brand:#7aa2ff; --chip:#2a3760;
+      --radius:18px;
+    }
+    body{
+      margin:0; color:var(--text); background:var(--bg);
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Helvetica Neue", Arial, sans-serif;
+      line-height:1.65; letter-spacing:.1px; overflow-x:hidden;
+    }
+
+    /* ===== Layered Space BG ===== */
+    .stars, .stars::before, .stars::after{ position:fixed; inset:0; content:""; display:block; pointer-events:none; }
+    .stars{ background-image:
+      radial-gradient(2px 2px at 20% 30%, #fff8, transparent 40%),
+      radial-gradient(1px 1px at 60% 70%, #dfe7ff66, transparent 40%),
+      radial-gradient(2px 2px at 80% 20%, #fff6, transparent 40%); opacity:.45; animation: drift1 180s linear infinite; }
+    .stars::before{ background-image:
+      radial-gradient(1px 1px at 10% 80%, #fff6, transparent 40%),
+      radial-gradient(1.5px 1.5px at 70% 30%, #c9d5ff66, transparent 40%),
+      radial-gradient(2px 2px at 90% 50%, #fff8, transparent 40%); opacity:.35; animation: drift2 260s linear infinite; }
+    .stars::after{ background-image:
+      radial-gradient(1px 1px at 30% 10%, #fff6, transparent 40%),
+      radial-gradient(1px 1px at 60% 90%, #bdd5ff66, transparent 40%),
+      radial-gradient(2px 2px at 40% 40%, #fff7, transparent 40%); opacity:.25; animation: drift3 360s linear infinite; }
+    @keyframes drift1{ from{background-position:0 0} to{background-position:-2000px 2000px} }
+    @keyframes drift2{ from{background-position:0 0} to{background-position:-2600px 2600px} }
+    @keyframes drift3{ from{background-position:0 0} to{background-position:-3200px 3200px} }
+
+    /* ===== Constellation Arc (semi-circle) ===== */
+    .arc{
+      position:fixed; left:50%; bottom:-20vmin; width:120vmin; height:60vmin; transform:translateX(-50%);
+      pointer-events:none; filter: drop-shadow(0 8px 24px rgba(50,90,200,.25));
+    }
+    .arc::before{
+      content:""; position:absolute; inset:0; border-radius:120vmin 120vmin 0 0 / 60vmin 60vmin 0 0; overflow:hidden;
+      background:
+        radial-gradient(2px 2px at 10% 70%, #eaf0ffcc 99%, transparent 100%),
+        radial-gradient(2px 2px at 20% 45%, #eaf0ffcc 99%, transparent 100%),
+        radial-gradient(2px 2px at 35% 55%, #eaf0ffcc 99%, transparent 100%),
+        radial-gradient(2px 2px at 50% 38%, #eaf0ffcc 99%, transparent 100%),
+        radial-gradient(2px 2px at 62% 65%, #eaf0ffcc 99%, transparent 100%),
+        radial-gradient(2px 2px at 78% 50%, #eaf0ffcc 99%, transparent 100%),
+        radial-gradient(2px 2px at 90% 40%, #eaf0ffcc 99%, transparent 100%),
+        conic-gradient(from 180deg at 50% 100%, transparent 0 5deg, #9fb3ff38 5deg 6deg, transparent 6deg 15deg, #9fb3ff38 15deg 16deg, transparent 16deg 28deg, #9fb3ff38 28deg 29deg, transparent 29deg 47deg, #9fb3ff38 47deg 48deg, transparent 48deg 60deg);
+      -webkit-mask: radial-gradient(120vmin 60vmin at 50% 100%, #000 98%, transparent 100%);
+      mask: radial-gradient(120vmin 60vmin at 50% 100%, #000 98%, transparent 100%);
+      opacity:.75; animation: spin 80s linear infinite;
+    }
+    body[data-bg="y1"] .arc::before{ animation-duration: 90s; filter:hue-rotate(0deg) saturate(1.1); }
+    body[data-bg="y4"] .arc::before{ animation-duration: 70s; filter:hue-rotate(20deg) saturate(1.2); }
+    body[data-bg="y7"] .arc::before{ animation-duration: 55s; filter:hue-rotate(40deg) saturate(1.2); }
+    body[data-bg="adult"] .arc::before{ animation-duration: 40s; filter:hue-rotate(70deg) saturate(1.1); opacity:.5; }
+    @keyframes spin{ from{ transform: rotate(0deg);} to{ transform: rotate(360deg);} }
+
+    /* ===== Layout ===== */
+    
+    .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px clamp(16px,4vw,48px);
+  background: rgba(8,11,22,0.85); /* 반투명 배경 */
+  backdrop-filter: blur(6px);       /* 뒤 배경 흐림 */
+  z-index: 10;
+}
+.wrap{ padding-top: 100px;}
+    .title{ display:flex; flex-direction:column; gap:4px; }
+    .title h1{ margin:0; font-size:clamp(20px,3.4vw,36px); font-weight:800; letter-spacing:.2px; }
+    .title p{ margin:0; opacity:.78; font-size:clamp(12px,2vw,14px); }
+
+    .container{ display:grid; grid-template-columns: 1.45fr .9fr; gap: clamp(16px,3vw,28px); }
+    @media (max-width: 1024px){ .container{ grid-template-columns: 1fr; } }
+
+    /* ===== Tabs ===== */
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin: 12px 0 18px; }
+    .tab{ border:1px solid var(--stroke); color:#cfd6ff; background:#0f1630a6; backdrop-filter: blur(4px);
+      padding:8px 14px; border-radius:999px; cursor:pointer; user-select:none; transition:.2s ease; font-size:14px; }
+    .tab:hover{ transform: translateY(-1px); border-color: var(--stroke2); }
+    .tab.active{ background: linear-gradient(135deg, #161f46, #0e1a3a); border-color: var(--stroke2); box-shadow: 0 8px 22px rgba(40,70,150,.25) inset, 0 4px 12px rgba(0,0,0,.25); }
+
+    /* ===== Card ===== */
+    .card{ background: linear-gradient(180deg, var(--panel), var(--panel2)); border:1px solid var(--stroke); border-radius: var(--radius);
+      padding: clamp(16px,3vw,24px); box-shadow: 0 10px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03); }
+
+    .section + .section{ margin-top:18px; }
+    .section h3{ margin:0 0 8px; font-size:16px; opacity:.92; letter-spacing:.2px; }
+    .kv{ display:grid; grid-template-columns:minmax(100px,140px) 1fr; gap: 10px 16px; }
+    .kv dt{ opacity:.72; }
+    .kv dd{ margin:0; }
+    .blockquote{ margin:8px 0 12px; padding:10px 12px; border-left:3px solid #4b5da8; background: rgba(30,38,70,.35); border-radius:6px; font-style:italic; opacity:.95; }
+
+    .list{ margin:0; padding-left:16px; }
+    .taglist{ display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 0; padding:0; list-style:none; }
+    .taglist li{ padding:6px 12px; border-radius:999px; border:1px solid #33406e; background: rgba(22,28,50,.6); font-size:12px; }
+
+    /* ===== Side (Image) - 투명 PNG + 바닥 그림자 ===== */
+    /* ===== Container Grid ===== */
+.container {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* ===== Profile 카드 영역 ===== */
+.container .card {
+  flex: 1 1 60%; /* 프로필 영역: 화면 폭의 약 60% */
+}
+
+/* ===== Full-body Image Side Panel ===== */
+.side {
+  flex: 1 1 38%; /* 이미지 영역: 화면 폭의 약 38% */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.imageWrap {
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  border-radius: 0;
+  background: transparent;
+  animation: floaty 6s ease-in-out infinite alternate;
+}
+
+.imageWrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* ===== Floating animation ===== */
+@keyframes floaty {
+  0%   { transform: translateY(0px) rotate(-1deg); }
+  50%  { transform: translateY(-12px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(-1deg); }
+}
+
+/* ===== Responsive: 창 작으면 이미지 아래로 ===== */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .container .card,
+  .side {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .imageWrap {
+    aspect-ratio: auto;
+    width: 100%;
+  }
+}
+
+.imageWrap::after{
+      content:"";
+      position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+      width:60%; height:22px; border-radius:50%;
+      background:radial-gradient(ellipse at center, rgba(0,0,0,.45) 0%, transparent 70%);
+      filter: blur(8px); z-index:0;
+    }
+    .caption{ text-align:center; font-size:12px; opacity:.8; margin-top:4px; }
+
+    /* ===== Disabled overlay for Adult ===== */
+    .disabledOverlay{ display:none; position:absolute; inset:0; background:linear-gradient(180deg, rgba(8,10,20,.3), rgba(8,10,20,.75));
+      backdrop-filter: blur(2px); place-items:center; color:#cdd6ff; font-weight:600; letter-spacing:.3px; }
+    .disabledOverlay span{ border:1px solid #3b4a86; padding:10px 14px; border-radius:10px; background:#0f1630a6; }
+
+    /* ===== Footer ===== */
+    .footer{ margin-top:28px; opacity:.7; font-size:12px; text-align:center; }
+
+    /* ===== Fade-Up 애니메이션 ===== */
+    @keyframes fadeUpKey {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fadeUp { animation: fadeUpKey .55s cubic-bezier(.22,.61,.36,1) forwards; }
+  </style>
+</head>
+<body data-bg="y1">
+  <div class="stars"></div>
+  <div class="arc" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="header">
+      <div class="title">
+        <h1>Delphina Rigel Bedegis <span style="font-weight:600; opacity:.8"></span></h1>
+        <p>별과 기록, 그리고 변광의 주기 안에서.</p>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="타임라인 보기">
+        <button class="tab active" data-tab="y1" role="tab" aria-selected="true">1학년</button>
+        <button class="tab" data-tab="y4" role="tab" aria-selected="false">4학년</button>
+        <button class="tab" data-tab="y7" role="tab" aria-selected="false">7학년</button>
+        <button class="tab" data-tab="adult" role="tab" aria-selected="false">성인</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <!-- ===== Left: Profile Content ===== -->
+      <section class="card" id="panel-y1" role="tabpanel" aria-labelledby="y1" style="display:block;">
+        <div class="section">
+          <div class="chip">#1학년 프로필</div>
+          <h2>[ 무한이라는 세상 ]</h2>
+          <div class="blockquote">“ 별을 사랑하는 방법을 배운 적 있어? ”</div>
+          <dl class="kv">
+            <dt>이름</dt><dd>Delphina Rigel Bedegis (리젤 선호)</dd>
+            <dt>성별</dt><dd>XX</dd>
+            <dt>나이</dt><dd>11세</dd>
+            <dt>키/체형</dt><dd>141 / 마름</dd>
+            <dt>기숙사</dt><dd>래번클로</dd>
+            <dt>혈통</dt><dd>혼혈</dd>
+          </dl>
+        </div>
+        <div class="section">
+          <h3>외관</h3>
+          <p>긴 남색 머리카락은 허리를 넘어 등 아래까지 부드럽게 흘러내리며, 아래로 갈수록 점점 하얀색으로 바뀝니다. 창백한 피부에 홍조가 있어 그 홍조가 더 돋보이는 듯 합니다. 눈매는 아래로 내려간 순한 인상이며 풍성한 속눈썹 아래에는 맑은 하얀 눈동자가 자리잡고 있습니다. 하얀색이 그렇듯 바라보는 색을 그대로 담아냅니다. 늘 단정하게 교복을 입고 다니며, 치마는 길게 수선해 입고 다닙니다.
+            </p>
+        </div>
+        <div class="section">
+          <h3>성격</h3>
+          <ul class="list">
+            <li>[마이웨이, 제멋대로인, 괴짜, 고집있는, 허당]</li>
+            <p>좋아하는 일에 몰두하는 성향이 강합니다. 누가 뭐라하든 자신만의 루틴과 관심사를 고집하기도 하고요. 가령 별똥별이 쏟아지는 날에는 수업이 있어도 몰래 빠져나와 혼자 천문대 옥상에 올라가는 일도 서슴지 않을 정도입니다. 관심분야에서는 감성보다는 이성이 우선이지만, 그 외의 일에는 자신이 하고자 한다면 논리적인 이유를 대더라도 듣지 않습니다. 게다가 자신의 관심분야를 제외하고는 잘 모르는 경우도 많습니다. 때문에 공부를 잘 하냐고 묻는다면 그에 대한 답은 ‘아니다’겠죠.
+            </p>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>좋아하는 것 (L)</h3>
+          <ul class="taglist"><li>별</li><li>우주</li><li>독서</li><li>맑은 날</li></ul>
+          <h3>싫어하는 것 (H)</h3>
+          <ul class="taglist"><li>방해</li><li>흐린 날</li><li>강한 인공적인 빛</li></ul>
+          <h3>무서운 것/약점 (S)</h3>
+          <ul class="taglist"><li>—</li></ul>
+        </div>
+        <div class="section">
+          <h3>지팡이 & 소지품</h3>
+          <p>지팡이: 포도나무, 유니콘의 털, 11인치, 나긋나긋함</p>
+          <p>소지품: 휴대용 천체망원경, 만년필, 시계</p>
+        </div>
+
+        <div class="section">
+            <h3>특징</h3>
+            <li>생일 12/14, AB형</li>
+            <li>체력이 좋지 않습니다. 추가로 체온이 낮은 편.</li>
+            <li>손 끝에 잉크를 묻히고 있을 때가 잦습니다. 때문에 가까이 다가가면 연한 잉크향이 납니다.</li>
+            <li>별을 관측하고, 그 위치를 지도처럼 그리고, 별의 움직임을 계산하는 것을 좋아합니다.</li>
+            <li>취미라기엔 애매하지만, 가끔 춤을 춥니다. 모든 동작이 자신의 창작이기에 누군가와 같이 추기는 어렵습니다. 같이 춘다면 상대를 배려하지 않고 제 동작대로 끌고가는 모양.</li>
+            <li>몇 년 전 베디지스 가문에 입양되었습니다. 연구를 원하는대로 할 수 있어 꽤 만족스럽다는 듯.</li>
+            <li>베디지스 가문은 각자 분야는 조금씩 다르지만 대체로 연구자들로 구성되어 있습니다.</li>
+
+        </div>
+      </section>
+
+      <section class="card" id="panel-y4" role="tabpanel" aria-labelledby="y4" style="display:none;">
+        <div class="section">
+          <div class="chip">#4학년 프로필</div>
+          <h2>[ 무한의 한 발자국 뒤에서 ]</h2>
+          <div class="blockquote">“ 답이 없는 문제에 답을 하려면 답이 없다는 것을 증명할 수 있어야 해. ”</div>
+          <dl class="kv">
+            <dt>이름</dt><dd>Delphina Rigel Bedegis (리젤 선호)</dd>
+            <dt>성별</dt><dd>XX</dd>
+            <dt>나이</dt><dd>14세</dd>
+            <dt>키/체형</dt><dd>147 / 마름</dd>
+            <dt>기숙사</dt><dd>래번클로</dd>
+            <dt>혈통</dt><dd>혼혈</dd>
+          </dl>
+        </div>
+        <div class="section">
+          <h3>외관</h3>
+          <p>아래로 갈수록 옅어지는 긴 머리카락은 여전합니다. 다만 머리를 묶는 과정이 조금 번거롭다고 생각했는지 요즘은 풀고 다니는 듯 싶지만요. 그 외에는 정말 그대로입니다. 11살 모습 그대로 키만 아주 조금 자란 모습. 키도 그렇게 많이 큰 것도 아니니 변했다고 할 만한 부분은 없다시피 합니다.
+        </p>
+        </div>
+        <div class="section">
+          <h3>성격</h3>
+          <ul class="list">
+            <li>마이웨이, 고집있는, 아이같은</li>
+            <p>여전합니다. 여전히 자신히 하고 싶은 일은 무조건 해야하며, 쉽게 주장을 굽히지도 않습니다. 그래도 상대의 의견이 논리적으로 충분히 납득가능하다면 수긍하기는 하지만요. 마음에 들지 않는다는 티를 잔뜩 내니 완전히 수긍했다고 할 수 있을지는 모르겠네요.</p>
+            <li>괴짜, 수다스러운</li>
+            <p>이전보다 좀 더 다른 세계에 살고 있는 듯 합니다. 변하는 것 사이의 변하지 않는 것, 예측하기 어려운 것 … 등등 다른 사람이 듣기에는 다소 뜬구름 잡는 듯한 말도 자주 합니다. 게다가 관심분야도 더 다양해져서 어떤 이야기를 꺼내더라도 자신의 이야기를 조잘조잘 말하곤 합니다.
+            </p>
+            <li>집중하는, 집착</li>
+            <p>하지만 이런 델피나도 조용해질 때가 있는데, 그건 바로 별을 볼 때입니다. 입 밖으로 내뱉을 시간에 별 하나를 더 보는 것을 더 선호하는 탓일까요. 어쩌면 별에 대한 집착 때문일지도 모르겠네요. 별에 대해 모든 것을 알고자 하면서, 할 수 있는 한 최대한 오래 붙잡아 두고싶어 하니까요.
+            </p>
+          </ul>
+        </div>
+        <div class="section">
+          <h3>좋아하는 것 (L)</h3>
+          <ul class="taglist"><li>별</li><li>우주</li><li>독서</li><li>맑은 날</li></ul>
+          <h3>싫어하는 것 (H)</h3>
+          <ul class="taglist"><li>방해</li><li>흐린 날</li><li>강한 인공 빛</li></ul>
+          <h3>무서운 것/약점 (S)</h3>
+          <ul class="taglist"><li>—</li></ul>
+        </div>
+
+        <div class="section">
+          <h3>지팡이 & 소지품</h3>
+          <p>지팡이: 포도나무, 유니콘의 털, 11인치, 나긋나긋함</p>
+          <p>소지품: 천체망원경, 만년필, 시계</p>
+        </div>
+
+        <div class="section">
+          <h3>특징</h3>
+          <li>학교생활</li>
+          <p>불량학생은 아니지만 그렇다고 모범적인 학생은 아닙니다. 밤마다 몰래 기숙사에서 빠져나와 천문대에 가는 것은 물론이고, 수업을 들을 때도 흥미가 가는 부분에만 집중해서 듣는 모습을 보입니다. 게다가 밤마다 천문대에 가는 탓에 낮 동안은 꾸벅 조는 경우도 꽤 많습니다. 아마 교수님들의 입장에서는 뭐라고 하기에도 애매하고, 그렇다고 그냥 둘 수도 없는 골칫거리일지도 모르겠네요.
+        </p>
+            <li>취미</li>
+            <p>여전히 별을 사랑합니다. 별을 사랑하는 이유는 이전보다 다양해졌지만요. 그래도 가장 큰 이유는 같습니다. 누군가가 왜 별을 좋아하느냐고 묻는다면 늘 사람은 별의 조각이라는 이야기를 합니다.
+            </p>
+
+            <li>베디지스 가문</li>
+            <p>베디지스 가문은 각자 분야는 조금씩 다르지만 대체로 연구자들로 구성되어 있습니다. 델피나의 집은 천체에 관한 연구가 대부분입니다. 그렇기에 망원경도 여러대, 관련 책으로 책장 몇 개를 채웠으며 빠른 암적응을 위해서인지 집 안도 어두운 편입니다.</p>
+
+            <li>가족관계?</li>
+            <p>입학하기 몇 년 전 베디지스 가문에 입양되었습니다. 연구를 원하는대로 할 수 있어 꽤 만족스럽다는 듯. 베디지스 가주, 그러니까 델피나를 입양한 사람과의 관계는 조금 애매합니다. 부모님과 딸이라는 느낌보다는 교수님과 학생의 관계에 더 가깝습니다. 델피나는 이 쪽을 더 좋아하겠지만요. 형제자매도 없어서 집에서는 보통 하고 싶은대로 하는 편입니다.</p>
+
+            <li>기타</li>
+            <p>생일 12/14, AB형</p>
+            <p>체력이 좋지 않습니다. 추가로 체온이 낮은 편.</p>
+            <p>하지만 이것저것 많이 들고 다니다보니 근력은 평균이상.</p>
+            <p>손 끝에 잉크를 묻히고 있을 때가 잦습니다. 때문에 가까이 다가가면 연한 잉크향이 납니다.</p>
+        </div>
+      </section>
+
+      <section class="card" id="panel-y7" role="tabpanel" aria-labelledby="y7" style="display:none;">
+        <div class="section">
+          <div class="chip">#7학년 프로필</div>
+          <h2>[ 변광의 주기 안에서 ]</h2>
+          <div class="blockquote">“ 내가 우주에 있는 것이라 생각했는데 실은 낙하 중이었던거면 어쩌지. ”</div>
+          <dl class="kv">
+            <dt>이름</dt><dd>Delphina Rigel Bedegis (리젤 선호)</dd>
+            <dt>성별</dt><dd>XX</dd>
+            <dt>나이</dt><dd>17세</dd>
+            <dt>키/체형</dt><dd>156 / 마름</dd>
+            <dt>기숙사</dt><dd>래번클로</dd>
+            <dt>혈통</dt><dd>HB</dd>
+          </dl>
+        </div>
+        <div class="section">
+          <h3>외관</h3>
+          <p>아래로 갈수록 옅어지는 머리카락은 이전보다 짧아졌으며 땋아서 정리해 두었습니다. 머리를 왜 잘랐냐고 묻는다면 별이 되기를 바라며 묻었다는 이해하기 어려운 대답을 들을 수 있습니다. 처음 자를 때는 단발로 잘랐으나, 시간이 지나면서 좀 더 길어졌다는 듯. 이전보다는 좀 더 피곤한 기색이 있지만 여전히 별을 보면 표정이 밝아집니다.
+        </p>
+        </div>
+        <div class="section">
+          <h3>성격</h3>
+          <ul class="list">
+            <li>차분한, 고요한</li>
+            <p>예전처럼 모든 생각을 거리낌 없이 내뱉기보다는, 이제는 말하기 전에 오래 생각하는 편입니다. 자신의 말을 모든 사람들이 듣는 것은 아니라는 것을 깨달았기 때문. 또한 불필요한 소란을 싫어해 말수가 적어졌습니다. 하지만 침묵이 곧 무관심은 아니며, 대화할 때는 상대의 말 하나하나를 곱씹어 듣고 섬세하게 반응합니다.</p>
+
+            <li>괴짜</li>
+            <p>조용해졌다고 해서 특유의 괴짜스러움이 사라진 건 아닙니다. 여전히 별과 우주, 보이지 않는 변화 같은 주제에 깊이 몰입하며, 다른 사람에게는 뜬구름 잡는 이야기처럼 보일 법한 말을 꺼내기도 합니다. 다만 이제는 그 이야기를 꺼낼 사람을 신중히 고르는 편입니다.
+            </p>
+
+            <li>몰두하는, 집요한</li>
+            <p>작은 빛 하나에도 오래 시선을 두며, 기록하고 또 되새깁니다. 다른 이들이 흘려보내는 사소한 현상조차 그녀에게는 의미를 찾을 대상이 됩니다. 이 고요한 집요함은 공부에서도 드러나는데, 특히 좋아하는 과목이나 관심 있는 주제 앞에서는 밤을 통째로 쓰는 일도 드물지 않습니다. 불면의 시간조차 소모하지 않고 차곡차곡 쌓아올리려는 성향은 때로는 집착처럼 보입니다.</p>
+
+            <li>안정에 머무르는, 변화를 경계하는</li>
+            <p>이전과는 달리 어제와 오늘이 다르지 않기를 바라는 마음이 강합니다. 익숙한 책상, 익숙한 길, 익숙한 목소리에 안도하며, 새로운 것보다는 오래된 것에서 편안함을 느낍니다. 변화는 설렘보다는 불안을 불러오기에, 다가오는 변화를 최대한 늦추거나 피하려는 경향이 있습니다. 변하지 않는 것은 없다는 것을 잘 알고 있지만요.</p>
+
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3>좋아하는 것 (L)</h3>
+          <ul class="taglist"><li>별</li><li>우주</li><li>독서</li><li>맑은 날</li></ul>
+          <h3>싫어하는 것 (H)</h3>
+          <ul class="taglist"><li>방해</li><li>흐린 날</li><li>강한 인공적인 빛</li><li>책임</li></ul>
+          <h3>무서운 것/약점 (S)</h3>
+          <ul class="taglist"><li>—</li></ul>
+        </div>
+
+        <div class="section">
+          <h3>지팡이 & 소지품</h3>
+          <p>지팡이: 포도나무, 유니콘의 털, 11인치, 나긋나긋함</p>
+          <p>소지품: 천체망원경, 만년필, 시계</p>
+        </div>
+
+        <div class="section">
+          <h3>특징</h3>
+          <li>성적</li>
+          <dl class="kv">
+            <dt>마법</dt><dd>D</dd>
+            <dt>변신술</dt><dd>D</dd>
+            <dt>약초학</dt><dd>A</dd>
+            <dt>어둠의 마법 방어술</dt><dd>D</dd>
+            <dt>마법약</dt><dd>O</dd>
+            <dt>마법의 역사</dt><dd>O</dd>
+            <dt>천문학</dt><dd>O</dd>
+            <dt>산술점</dt><dd>O</dd>
+          </dl>
+            <p>얼핏 보기에도 과목 편식을 심하게 한 성적입니다. 이전부터 좋아하는 과목만 열심히 들었으니 당연한 이야기겠지만요. 성적이 잘 나온 과목들은 딱히 열심히 공부하지는 않았다는 점에서는 똑똑하다고 해야할지…</p>
+            
+            <li>학교생활</li>
+            <p>최근들어서는 이전처럼 자유롭게 학교생활을 하기보다는 좀 더 모범생에 가까워졌습니다. O.W.L 성적을 보고 충격을 받은 것인지 다른 심경의 변화가 있는 것인지를 모르겠지만 과목 편식도 줄어들었고요. 종종 피곤해하기는 하지만 수업 중에 졸지도 않습니다.</p>
+
+            <li>취미</li>
+            <p>여전히 별을 사랑합니다. 별을 사랑하는 이유는 이전보다 다양해졌지만요. 그래도 가장 큰 이유는 같습니다. 누군가가 왜 별을 좋아하느냐고 묻는다면 늘 사람은 별의 조각이라는 이야기를 합니다. 최근부터는 사람이 죽어서도 별이 된다는 가설을 이전보다 더 강하게 믿고 있습니다. 하지만 이전보다는 별을 보러 나가는 주기가 길어졌습니다.</p>
+
+            <li>베디지스 가문</li>
+            <p>베디지스 가문은 각자 분야는 조금씩 다르지만 대체로 연구자들로 구성되어 있습니다. 델피나의 집은 천체에 관한 연구가 대부분입니다. 그렇기에 망원경도 여러대, 관련 책으로 책장 몇 개를 채웠으며 빠른 암적응을 위해서인지 집 안도 어두운 편입니다. 몇 년 전부터 가주가 공식적인 자리에서는 보기 힘들어졌으며, 최근에는 가문 내부가 소란스러워졌습니다.</p>
+
+            <li>기타</li>
+            <p>생일 12/14, AB형</p>
+            <p>체력이 좋지 않습니다. 추가로 체온이 낮은 편.</p>
+            <p>하지만 이것저것 많이 들고 다니다보니 근력은 평균이상.</p>
+            <p>손 끝에 잉크를 묻히고 있을 때가 잦습니다. 때문에 가까이 다가가면 연한 잉크향이 납니다.</p>
+        </div>
+      </section>
+
+      <section class="card" id="panel-adult" role="tabpanel" aria-labelledby="adult" style="display:none; position:relative;">
+        <div class="section">
+          <div class="chip">#성인 프로필</div>
+          <h2>[ 비공개 ]</h2>
+          <div class="blockquote">“ 비밀이 비밀인 이유는 알고 있지? ”</div>
+          <p style="opacity:.85">현재 시점에서는 열람할 수 없습니다.</p>
+        </div>
+      </section>
+
+      <!-- ===== Right: Full-body Image ===== -->
+      <aside class="side">
+        <div class="imageWrap">
+          <img id="portrait" src="" alt="Delphina full body" />
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">© Delphina Rigel Bedegis — Star Archive</footer>
+  </div>
+
+  <script>
+    // ===== Tabs Logic & Background mode =====
+    const tabs = document.querySelectorAll('.tab');
+    const panels = {
+      y1: document.getElementById('panel-y1'),
+      y4: document.getElementById('panel-y4'),
+      y7: document.getElementById('panel-y7'),
+      adult: document.getElementById('panel-adult'),
+    };
+
+    const stageImages = {
+      y1: '1year.png',
+      y4: '4year.png',
+      y7: '7year.png',
+      adult: 'adult.png'
+    };
+
+    const bodyEl = document.body;
+    const portrait = document.getElementById('portrait');
+    const overlay = document.getElementById('adultOverlay');
+
+    // fadeUp 재생 헬퍼 (재적용 가능하도록 강제 리플로우)
+    function playFadeUp(el) {
+      if (!el) return;
+      el.classList.remove('fadeUp');
+      void el.offsetWidth; // reflow
+      el.classList.add('fadeUp');
+    }
+
+    function switchTab(key){
+      // 버튼 상태
+      tabs.forEach(b => {
+        const isActive = b.dataset.tab === key;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-selected', String(isActive));
+      });
+
+      // 패널 표시/애니메이션
+      Object.entries(panels).forEach(([k, el]) => {
+        if(k === key){
+          el.style.display = 'block';
+          playFadeUp(el);         // 프로필 카드 페이드업
+        } else {
+          el.style.display = 'none';
+          el.classList.remove('fadeUp');
+        }
+      });
+
+      // 배경 모드
+      bodyEl.setAttribute('data-bg', key);
+
+      // 전신 이미지 교체 + 애니메이션
+      portrait.src = stageImages[key] || stageImages['y7'];
+      playFadeUp(portrait);
+
+      // 성인 오버레이
+      if(overlay){ overlay.style.display = (key === 'adult') ? 'grid' : 'none'; }
+    }
+
+    // 탭 클릭 바인딩
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    // 초기 상태
+    portrait.src = stageImages['y1'];
+    switchTab('y1');
+  </script>
+</body>
+</html>
